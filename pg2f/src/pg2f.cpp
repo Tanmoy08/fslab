@@ -1,6 +1,6 @@
 //============================================================================
 // Name        : pg2f.cpp
-// Author      : 
+// Author      :
 // Version     :
 // Copyright   : Your copyright notice
 // Description : Hello World in C++, Ansi-style
@@ -11,7 +11,8 @@
 #include<sstream>
 #include <iostream>
 #include<stdio.h>
-#define max 20
+#include<stdlib.h>
+#define max 100
 using namespace std;
 class Student {
 	string name;
@@ -72,11 +73,56 @@ public :
 		fp1<<endl;
 		fp1.close();
 	}
-	void search()
+	void search(string usn)
 	{
 		fstream fp1;
+		int i;
 		fp1.open("data.txt",ios::in);
-		fp1.getline(buffer,max);
+		getline(fp1,buffer);
+		cout<<"record read"<<endl;
+		cout<<buffer<<endl;
+		int pos=fp1.tellp();
+		cout<<"position in file"<<pos<<endl;
+		unpack();
+	}
+	void unpack()
+	{
+		string s;
+
+			int i=0;
+			cout<<endl<<endl;
+			while(buffer[i]!='|')
+			{
+				usn+=buffer[i];
+				i++;
+			}
+			i++;
+			while(buffer[i]!='|')
+			{
+				name+=buffer[i];
+				i++;
+			}
+			i++;
+			while(buffer[i]!='|')
+			{
+				branch+=buffer[i];
+				i++;
+			}
+			i++;
+			while(buffer[i]!='$')
+			{
+				s=buffer[i];
+				stringstream convert(s);
+				convert>>sem;
+				i++;
+			}
+			cout<<"usn is :"<<usn<<endl;
+			cout<<"name is :"<<name<<endl;
+			cout<<"branch is :"<<branch<<endl;
+			cout<<"sem is :"<<sem<<endl;
+	}
+	void modify()
+	{
 	}
 };
 
@@ -105,6 +151,21 @@ int main() {
 					break;
 				}
 			}
+			break;
+		case 2:
+			{
+				string usn;
+				cout<<"enter the usn :";
+				cin>>usn;
+				s1.search(usn);
+			}
+		case 4:
+				{
+					string usn;
+					cout<<"enter the usn :";
+					cin>>usn;
+					modify(usn);
+				}
 		}
 	}
 	return 0;
