@@ -35,7 +35,7 @@ class Studentrecord{
            cin.ignore(255,'\n');
            cout<<endl;
         }
-        int pack()
+        void pack()
         {
           string sem1;
 		string temp;
@@ -45,33 +45,28 @@ class Studentrecord{
 		temp=usn+'|'+name+'|'+branch+'|'+sem1+'$';
 		cout<<temp<<endl;
 		buffer=temp;
-               int a=buffer.size();
-               return a;
         }
         int write()
 	{
 		fstream fp1;
 		fp1.open("data2.txt",ios::out|ios::app);
+		 int pos=fp1.tellp();
 		fp1<<buffer;
-        int pos=fp1.tellp();
+       
         cout<<"pos:"<<pos<<endl;
         fp1.close();
-        int len=buffer.size();
-        rrn.push_back(pos-len);
+        //int len=buffer.size();
+        rrn.push_back(pos);
         rsize++;
         cout<<"rsize:"<<rsize<<endl;
-        cout<<"content rrn:"<<rrn[rsize-1];
+        //cout<<"content rrn:"<<rrn[rsize-1];
         return pos;
 	}
         void search(int recno)
         {
             fstream fp1;
             int a=rrn[recno-1];
-            cout<<"urrent record position : "<<a<<endl;
-            int b=rrn[recno];
-            cout<<"next record position : "<<b<<endl;
-            int len=b-a;
-            //cout<<"length of the record : "<<endl;
+            cout<<"current record position : "<<a<<endl;
             fp1.open("data2.txt",ios::in);
             fp1.seekp(a,ios::beg);
             getline(fp1,buffer,'$');
@@ -95,7 +90,7 @@ int main()
         {
             string s1;
             s.read();
-            int len=s.pack();
+            s.pack();
             int pos=s.write();
             cout<<"back"<<endl;
         }
