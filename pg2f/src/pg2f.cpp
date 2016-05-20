@@ -5,15 +5,18 @@
 #include <iostream>
 #include<stdio.h>
 #include<unistd.h>
+#include<vector>
 #include<stdlib.h>
 #define max 100
 using namespace std;
+vector<string> extra;
 class Student {
 	string name;
 	string usn;
 	string branch;
 	int sem;
 	string buffer;
+        int fdsize; //is used to keep track of the size of the record which will be modified
 public :
 	void read()
 	{
@@ -47,22 +50,14 @@ public :
 		stringstream out;
 		out<<sem;
 		sem1=out.str();
-		int i;
-		temp=usn+'|'+name+'|'+branch+'|'+sem1;
-		for(i=temp.size();i<100;i++)
-		{
-			temp+='$';
-		}
+		temp=usn+'|'+name+'|'+branch+'|'+sem1+'$';
 		cout<<temp<<endl;
 		buffer=temp;
 	}
 	void write()
 	{
 		fstream fp1;
-		char flname[max];
-		cout<<"enter the file name to write the read record"<<endl;
-		cin>>flname;
-		fp1.open(flname,ios::out|ios::app);
+		fp1.open("data.txt",ios::out|ios::app);
 		fp1<<buffer;
 		fp1<<endl;
 		fp1.close();
@@ -70,33 +65,35 @@ public :
 	int search(string key)
 	{
 		fstream fp1;
-		string rcvusn;
-		int flag;
-		fp1.open("data2.txt",ios::in);
-		while(!fp1.eof())
-		{
-			getline(fp1,buffer);
-			int pos=fp1.tellp();
-			rcvusn=unpack();
-		if(usn==key)
-		{
-			cout<<"position in file : "<<pos-101<<endl;
+				string rcvusn;
+				int flag;
+				fp1.open("data.txt",ios::in);
+				while(!fp1.eof())
+				{
+					int pos=fp1.tellp();
+					getline(fp1,buffer);
 
-			cout<<"success"<<endl;
-			cout<<"usn is :"<<usn<<endl;
-						cout<<"name is :"<<name<<endl;
-						cout<<"branch is :"<<branch<<endl;
-						cout<<"sem is :"<<sem<<endl;
-			return pos;
-		}
-		else
-		{
-			flag=-1;
-		}
-		}
-		if(flag==-1)
-			cout<<"record not found"<<endl;
-		return -1;
+					fdsize=buffer.size();
+					rcvusn=unpack();
+				if(usn==key)
+				{
+					cout<<"position in file : "<<pos<<endl;
+
+					cout<<"success"<<endl;
+					cout<<"usn is :"<<usn<<endl;
+								cout<<"name is :"<<name<<endl;
+								cout<<"branch is :"<<branch<<endl;
+								cout<<"sem is :"<<sem<<endl;
+					return pos;
+				}
+				else
+				{
+					flag=-1;
+				}
+				}
+				if(flag==-1)
+					cout<<"record not found"<<endl;
+				return -1;
 	}
 	string unpack()
 	{
@@ -133,25 +130,31 @@ public :
 				convert>>sem;
 				i++;
 			}
-			/*cout<<"usn is :"<<usn<<endl;
-			cout<<"name is :"<<name<<endl;
-			cout<<"branch is :"<<branch<<endl;
-			cout<<"sem is :"<<sem<<endl;*/
 			return usn;
 	}
 	void modify(string key)
 	{
 		fstream fp1;
-		cout<<"enter the filename to be modified"<<endl;
-		char fln[10];
-		cin>>fln;
-		int choice;
+		int choice,i=0;
+		string buffer1;
 		int pos1=search(key);
+		//pos1=pos1-(fdsize+1);
+		fstream f;
+		f.open("data.txt",ios::in);
+		f.seekg(pos1,ios::beg);
+		getline(f,buffer1);
+		while(!f.eof())
+		{
+			getline(f,buffer1);
+			extra.push_back(buffer1);
+			i++;
+		}
+
 		if (pos1 < 0) {
 			return;
 		}
-		pos1=pos1-101;
-		cout<<"record modi pos :"<<pos1<<endl;
+
+		cout<<"record modification pos :"<<pos1<<endl;
 		cout<<"enter the field to be modified :\n1.Name\n2.USN\n3.branch\n4.sem"<<endl;
 		cin>>choice;
 		switch(choice)
@@ -192,18 +195,24 @@ public :
 			break;
 		default: cout<<"Enter a valid choice"<<endl;
 		}
-		fp1.open(fln);
+
+		cout<<"value of pos1:"<<pos1<<endl;
+		fp1.open("data.txt");
 		fp1.seekp(pos1,ios::beg);
 		fp1<<buffer;
+		fp1<<endl;
+		for(int j=0;j<i-1;j++)
+		{
+			fp1<<extra[j]<<endl;
+		}
 		fp1.close();
 	}
 //abcd
 };
 
 int main() {
-	int choice,i;
+	int choice,i=0;
 	Student s1;
-//	cout<<"enter your choice :\n1> insert\n2>search\n3>delete\n4>modify\n5>exit\n----"<<endl;
 	while(1)
 	{
 		cout<<"enter your choice :\n1> insert\n2>search\n3>delete\n4>modify\n5>exit\n----"<<endl;
