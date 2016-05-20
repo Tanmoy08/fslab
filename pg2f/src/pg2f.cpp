@@ -1,16 +1,10 @@
-//============================================================================
-// Name        : pg2f.cpp
-// Author      :
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
+#include<sys/types.h>
 #include<string.h>
 #include<fstream>
 #include<sstream>
 #include <iostream>
 #include<stdio.h>
+#include<unistd.h>
 #include<stdlib.h>
 #define max 100
 using namespace std;
@@ -55,7 +49,7 @@ public :
 		sem1=out.str();
 		int i;
 		temp=usn+'|'+name+'|'+branch+'|'+sem1;
-		for(i=temp.size()+1;i<100;i++)
+		for(i=temp.size();i<100;i++)
 		{
 			temp+='$';
 		}
@@ -73,42 +67,65 @@ public :
 		fp1<<endl;
 		fp1.close();
 	}
-	void search(string usn)
+	int search(string key)
 	{
 		fstream fp1;
-		int i;
-		fp1.open("data.txt",ios::in);
-		getline(fp1,buffer);
-		cout<<"record read"<<endl;
-		cout<<buffer<<endl;
-		int pos=fp1.tellp();
-		cout<<"position in file"<<pos<<endl;
-		unpack();
+		string rcvusn;
+		int flag;
+		fp1.open("data2.txt",ios::in);
+		while(!fp1.eof())
+		{
+			getline(fp1,buffer);
+			int pos=fp1.tellp();
+			rcvusn=unpack();
+		if(usn==key)
+		{
+			cout<<"position in file : "<<pos-101<<endl;
+
+			cout<<"success"<<endl;
+			cout<<"usn is :"<<usn<<endl;
+						cout<<"name is :"<<name<<endl;
+						cout<<"branch is :"<<branch<<endl;
+						cout<<"sem is :"<<sem<<endl;
+			return pos;
+		}
+		else
+		{
+			flag=-1;
+		}
+		}
+		if(flag==-1)
+			cout<<"record not found"<<endl;
+		return -1;
 	}
-	void unpack()
+	string unpack()
 	{
 		string s;
 
 			int i=0;
 			cout<<endl<<endl;
+			usn.erase();
 			while(buffer[i]!='|')
 			{
 				usn+=buffer[i];
 				i++;
 			}
 			i++;
+			name.erase();
 			while(buffer[i]!='|')
 			{
 				name+=buffer[i];
 				i++;
 			}
 			i++;
+			branch.erase();
 			while(buffer[i]!='|')
 			{
 				branch+=buffer[i];
 				i++;
 			}
 			i++;
+			sem=0;
 			while(buffer[i]!='$')
 			{
 				s=buffer[i];
@@ -116,19 +133,77 @@ public :
 				convert>>sem;
 				i++;
 			}
-			cout<<"usn is :"<<usn<<endl;
+			/*cout<<"usn is :"<<usn<<endl;
 			cout<<"name is :"<<name<<endl;
 			cout<<"branch is :"<<branch<<endl;
-			cout<<"sem is :"<<sem<<endl;
+			cout<<"sem is :"<<sem<<endl;*/
+			return usn;
 	}
-	void modify()
+	void modify(string key)
 	{
+		fstream fp1;
+		cout<<"enter the filename to be modified"<<endl;
+		char fln[10];
+		cin>>fln;
+		int choice;
+		int pos1=search(key);
+		if (pos1 < 0) {
+			return;
+		}
+		pos1=pos1-101;
+		cout<<"record modi pos :"<<pos1<<endl;
+		cout<<"enter the field to be modified :\n1.Name\n2.USN\n3.branch\n4.sem"<<endl;
+		cin>>choice;
+		switch(choice)
+		{
+		case 1:
+			{
+				cout<<"Enter the new name :";
+				cin>>name;
+				cout<<endl;
+				pack();
+			}
+			break;
+		case 2:
+			{
+				cout<<"Enter the new USN :";
+				cin>>usn;
+				cout<<endl;
+				pack();
+
+			}
+			break;
+		case 3:
+			{
+				cout<<"Enter the new branch :";
+				cin>>branch;
+				cout<<endl;
+				pack();
+
+			}
+			break;
+		case 4:
+			{
+				cout<<"Enter the new sem :";
+				cin>>sem;
+				cout<<endl;
+				pack();
+			}
+			break;
+		default: cout<<"Enter a valid choice"<<endl;
+		}
+		fp1.open(fln);
+		fp1.seekp(pos1,ios::beg);
+		fp1<<buffer;
+		fp1.close();
 	}
+//abcd
 };
 
 int main() {
-	int choice;
+	int choice,i;
 	Student s1;
+//	cout<<"enter your choice :\n1> insert\n2>search\n3>delete\n4>modify\n5>exit\n----"<<endl;
 	while(1)
 	{
 		cout<<"enter your choice :\n1> insert\n2>search\n3>delete\n4>modify\n5>exit\n----"<<endl;
@@ -144,7 +219,7 @@ int main() {
 				s1.show();
 				s1.pack();
 				s1.write();
-				cout<<"to exit from insert mode press 0 else press anyother number to continue"<<endl;
+				cout<<"to exit from insert mode press 0 else press any other number to continue"<<endl;
 				int a;
 				cin>>a;
 				if(a==0)
@@ -155,17 +230,28 @@ int main() {
 		case 2:
 			{
 				string usn;
-				cout<<"enter the usn :";
+				cout<<"enter the usn to search :";
 				cin>>usn;
-				s1.search(usn);
+				i=s1.search(usn);
 			}
+			break;
 		case 4:
-				{
-					string usn;
-					cout<<"enter the usn :";
-					cin>>usn;
-					modify(usn);
-				}
+			{
+				string usn;
+				cout<<"enter the usn to be modified :";
+				cin>>usn;
+				s1.modify(usn);
+			}
+			break;
+		case 5:
+			{
+					exit(0);
+			}
+			break;
+		default :
+			{
+				cout<<"enter a valid option"<<endl;
+			}
 		}
 	}
 	return 0;
